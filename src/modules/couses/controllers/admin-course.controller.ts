@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { CourseService } from '../services';
@@ -30,6 +31,11 @@ export class AdminCourseController {
   @CreateNewCourseApiDocumentation()
   async createNewCourse(@Body() body: any): Promise<void> {
     await this.courseService.createCourse(body);
+  }
+
+  @Patch('/')
+  async updateCourse(@Body() body: CourseDto): Promise<void> {
+    await this.courseService.updateCourse(body);
   }
 
   @Delete('/:courseId')

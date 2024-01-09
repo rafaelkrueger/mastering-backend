@@ -6,9 +6,11 @@ export class FileService {
   constructor() {}
 
   async storeFile(base64String: string): Promise<string> {
-    const result = await cloudinary.uploader.upload(base64String, {
-      resource_type: 'auto',
-    });
-    return result.url
+    if (base64String) {
+      const result = await cloudinary.uploader.upload(base64String, {
+        resource_type: 'auto',
+      });
+      return result.url;
+    }
   }
 }

@@ -28,12 +28,14 @@ export class CourseService {
       {
         $group: {
           _id: '$category', // Grouping field (replace 'category' with the actual field name in your schema).
+          firstImage: { $first: '$image' },
         },
       },
       {
         $project: {
           _id: 0, // Exclude the "_id" field from the output.
           category: '$_id', // Rename the "_id" field to "category".
+          firstImage: 1,
         },
       },
     ]);
@@ -76,6 +78,26 @@ export class CourseService {
     return await createdCourse.save();
   }
 
+  async updateCourse(course: CourseDto) {
+    console.log(course);
+    let link;
+    if (course.image[0] !== 'h') {
+      link = await this.fileService.storeFile(course.image);
+    }
+    await this.courseModel
+      .updateOne(
+        { _id: course._id },
+        {
+          name: course.name,
+          description: course.description,
+          image: link,
+          category: course.category,
+          price: course.price,
+        },
+      )
+      .exec();
+  }
+
   async deleteCourse(courseId: string) {
     await this.courseModel.deleteOne({
       _id: courseId,
@@ -90,7 +112,7 @@ export class CourseService {
       });
       if (course) {
         // await this.budgetService.incrementCourseTotalAmount(course.id)
-        Logger.log(`User ${user.email} enrolled to course ${course.name}`)
+        Logger.log(`User ${user.email} enrolled to course ${course.name}`);
         await user.relatedCourse.push(course.id);
       }
       await user.save();
