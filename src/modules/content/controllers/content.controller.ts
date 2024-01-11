@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ContentService } from '../services';
 import { ApiTags } from '@nestjs/swagger';
 import { ContentDto } from '../content-dtos';
@@ -23,6 +23,11 @@ export class ContentController {
   @CreateNewContentApiDocumentation()
   async createContents(@Body() content: ContentDto) {
     return await this.contentService.createContent(content);
+  }
+
+  @Patch('')
+  async updateContent(@Body() content: ContentDto) {
+    return await this.contentService.updateContent(content);
   }
 
   @Delete('/:contentId')

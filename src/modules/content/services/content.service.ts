@@ -23,7 +23,6 @@ export class ContentService {
     );
     const lastContent = topic.content[topic.content.length - 1];
     //host pdfm video and image
-    console.log(newContent.files.length);
     const createdContent = await new this.contentModel(newContent);
     const linkImage = await this.fileService.storeFile(newContent.image);
     const linkVideo = await this.fileService.storeFile(newContent.videoUrl);
@@ -41,14 +40,14 @@ export class ContentService {
 
     if (lastContent) {
       await this.contentModel
-      .updateOne({ _id: lastContent._id }, { next: createdContent._id })
-      .exec();
+        .updateOne({ _id: lastContent._id }, { next: createdContent._id })
+        .exec();
       createdContent.previous = lastContent._id;
       topic.content.push(createdContent);
       await topic.save();
       return await createdContent.save();
     } else {
-      console.log(createdContent)
+      console.log(createdContent);
       topic.content.push(createdContent);
       await topic.save();
       return await createdContent.save();
@@ -57,6 +56,35 @@ export class ContentService {
 
   async findContentByCourseId(topicId: string) {
     return await this.contentModel.find({ topicRelated: topicId });
+  }
+
+  async updateContent(content: ContentDto) {
+    let imageLink;
+    let pdfLink;
+    let videoLink;
+
+    if (content.image !== 'h' && content.image) {
+      imageLink = await this.fileService.storeFile(content.image);
+    }
+    if (content.videoUrl !== 'h' && content.files.length > 0) {
+      pdfLink = await this.fileService.storeFile(content.files[0]);
+    }
+    if (content.image !== 'h' && content.videoUrl) {
+      videoLink = await this.fileService.storeFile(content.videoUrl);
+    }
+
+    await this.contentModel
+      .updateOne(
+        { name: content._id, topicRelated: content.topicRelated },
+        {
+          name: content.name,
+          description: content.description,
+          image: imageLink ? imageLink : content.image,
+          files: pdfLink ? pdfLink : content.files,
+          videoUrl: videoLink ? videoLink : content.videoUrl,
+        },
+      )
+      .exec();
   }
 
   async deleteContentById(contentId: string) {
